@@ -13,6 +13,8 @@ module.exports = function(grunt) {
 
 
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+
     simplemocha:{
       dev:{
         src:['test/*_test.js'],
@@ -23,32 +25,23 @@ module.exports = function(grunt) {
         }
       }
     },
-    watch:{
-      all:{
-        files:['app.js', 'models/*.js'],
-        tasks:['jshint', 'test']
-      }
-    },
-    jshint: {
-      all: ['Gruntfile.js', 'app.js', 'models/**/*.js', 'test/**/*.js'],
-      options: {
-        jshintrc: true,
-        globals: {
-          console: true,
-          module: true
+
+    watch: {
+      all: {
+        files:['app.js', '**/*.js' ],
+        tasks:['jshint']
+      },
+      express: {
+        files:  [ 'app.js','models/**/*.js','routes/**/*.js','assets/**/*' ],
+        tasks:  [ 'sass:dev', 'browserify:dev', 'express:dev' ],
+        options: {
+          // for grunt-contrib-watch v0.5.0+, "nospawn: true" for lower versions.
+          // Without this option specified express won't be reloaded
+          spawn: false
         }
       }
     },
-    casper: {
-      acceptance : {
-        options : {
-          test : true
-        },
-        files : {
-          'test/acceptance/casper-results.xml' : ['test/acceptance/*_test.js']
-        }
-      }
-    },
+
     express: {
       options: {
         // Override defaults here
@@ -70,6 +63,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     browserify: {
       prod: {
         src: ['assets/js/*.js'],
@@ -88,6 +82,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     clean: {
       build: ['build'],
       dev: {
@@ -97,7 +92,7 @@ module.exports = function(grunt) {
     },
 
     copy: {
-      all: {
+      prod: {
         expand: true,
         cwd: 'assets',
         src: ['css/*.css', '*.html', 'images/**/*' ],
@@ -114,6 +109,7 @@ module.exports = function(grunt) {
         filter: 'isFile'
       }
     },
+
     sass: {
       dist: {
         files: {'build/css/styles.css': 'assets/scss/styles.scss'}
@@ -125,14 +121,36 @@ module.exports = function(grunt) {
         },
         files: {'build/css/styles.css': 'assets/scss/styles.scss'}
       }
-    }
+    },
+
+    casper: {
+      acceptance : {
+        options : {
+          test : true
+        },
+        files : {
+          'test/acceptance/casper-results.xml' : ['test/acceptance/*_test.js']
+        }
+      }
+    },
+
+    jshint: {
+      all: ['Gruntfile.js', 'app.js', 'models/**/*.js', 'test/**/*.js'],
+      options: {
+        jshintrc: true,
+        globals: {
+          console: true,
+          module: true
+        }
+      }
+    },
   });
 
-  grunt.registerTask('default', ['jshint', 'test','watch:express']);
-  grunt.registerTask('test', [ 'jshint', 'simplemocha:dev' ]);
+  grunt.registerTask('default', ['test','watch:express']);
+  grunt.registerTask('test', [ 'simplemocha:dev' ]);
   grunt.registerTask('watch', 'test, watch:all');
   grunt.registerTask('test:acceptance',['express:dev','casper']);
   grunt.registerTask('server', [ 'build:dev', 'express:dev','watch:express' ]);
-  grunt.registerTask('build:dev',  ['clean:dev', 'sass:dev', 'browserify:dev', 'jshint:all', 'copy:dev']);
+  grunt.registerTask('build:dev',  [ 'clean:dev', 'sass:dev', 'browserify:dev', 'jshint:all', 'copy:dev' ]);
 
 };
