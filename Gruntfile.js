@@ -28,11 +28,11 @@ module.exports = function(grunt) {
 
     watch: {
       all: {
-        files:['app.js', '**/*.js' ],
+        files:['server.js', '**/*.js' ],
         tasks:['jshint']
       },
       express: {
-        files:  [ 'app.js','models/**/*.js','routes/**/*.js','assets/**/*' ],
+        files:  [ 'server.js','models/**/*.js','routes/**/*.js','assets/**/*' ],
         tasks:  [ 'sass:dev', 'browserify:dev', 'express:dev' ],
         options: {
           // for grunt-contrib-watch v0.5.0+, "nospawn: true" for lower versions.
@@ -48,18 +48,18 @@ module.exports = function(grunt) {
       },
       dev: {
         options: {
-          script: 'app.js'
+          script: 'server.js'
         }
       },
       prod: {
         options: {
-          script: 'app.js',
+          script: 'server.js',
           node_env: 'production'
         }
       },
       test: {
         options: {
-          script: 'app.js'
+          script: 'server.js'
         }
       }
     },
@@ -97,7 +97,7 @@ module.exports = function(grunt) {
         cwd: 'assets',
         src: ['css/*.css', '*.html', 'images/**/*' ],
         dest: 'dist/',
-        flatten: true,
+        flatten: false,
         filter: 'isFile'
       },
       dev: {
@@ -123,6 +123,13 @@ module.exports = function(grunt) {
       }
     },
 
+    jshint: {
+      all: ['Gruntfile.js', 'server.js', 'models/**/*.js', 'test/**/*.js'],
+      options: {
+        jshintrc: true
+      }
+    },
+
     casper: {
       acceptance : {
         options : {
@@ -134,23 +141,13 @@ module.exports = function(grunt) {
       }
     },
 
-    jshint: {
-      all: ['Gruntfile.js', 'app.js', 'models/**/*.js', 'test/**/*.js'],
-      options: {
-        jshintrc: true,
-        globals: {
-          console: true,
-          module: true
-        }
-      }
-    },
   });
 
-  grunt.registerTask('default', ['test','watch:express']);
-  grunt.registerTask('test', [ 'simplemocha:dev' ]);
-  grunt.registerTask('watch', 'test, watch:all');
+  grunt.registerTask('build:dev',  ['clean:dev', 'sass:dev', 'browserify:dev', 'jshint:all', 'copy:dev']);
+  grunt.registerTask('build:prod', ['clean:prod', 'browserify:prod', 'jshint:all', 'copy:prod']);
+  grunt.registerTask('test', ['jshint', 'simplemocha:dev']);
+  grunt.registerTask('server', ['build:dev', 'express:dev','watch:express']);
   grunt.registerTask('test:acceptance',['express:dev','casper']);
-  grunt.registerTask('server', [ 'build:dev', 'express:dev','watch:express' ]);
-  grunt.registerTask('build:dev',  [ 'clean:dev', 'sass:dev', 'browserify:dev', 'jshint:all', 'copy:dev' ]);
+  grunt.registerTask('default', ['jshint', 'test','watch:express']);
 
 };
