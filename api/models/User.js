@@ -1,5 +1,7 @@
-var mongoose = require('mongoose');
+'use strict';
+//jshint unused:false
 
+var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/oaa-development');
 
 var schema = new mongoose.Schema({

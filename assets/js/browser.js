@@ -8,12 +8,12 @@ var Backbone   = require('backbone');
 Backbone.$      = $;
 
 var User = Backbone.Model.extend({
-  idAttribute: "_id",
+  idAttribute: '_id',
   urlRoot: 'http://localhost:3000/api/v1/users'
 });
 
-var user = new User({first_name: "Steve", last_name: "McQueen"});
+var user = new User({first_name: 'Steve', last_name: 'McQueen'});
 user.save();
 
-user.set('first_name', "Greg");
+user.set('first_name', 'Greg');
 user.save();
